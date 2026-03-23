@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { api } from '../api/client';
 import type { TeamSummary, RcdoAlignment } from '../api/types';
+import { NavBar } from './NavBar';
 import { WeekSelector } from './WeekSelector';
 import { TeamSummaryCards } from './TeamSummaryCards';
 import { RcdoAlignmentChart } from './RcdoAlignmentChart';
@@ -73,39 +74,53 @@ export function ManagerDashboard() {
 
   return (
     <div>
-      <WeekSelector
-        weekStartDate={weekStart}
-        onPrev={handlePrev}
-        onNext={handleNext}
-        onCurrent={handleCurrent}
-      />
+      <NavBar breadcrumb="Manager">
+        <WeekSelector
+          weekStartDate={weekStart}
+          onPrev={handlePrev}
+          onNext={handleNext}
+          onCurrent={handleCurrent}
+        />
+      </NavBar>
 
-      <TeamSummaryCards summary={summary} />
+      <div className="px-6 py-4 space-y-4">
+        <TeamSummaryCards summary={summary} />
 
-      <table>
-        <thead>
-          <tr>
-            <th>Member</th>
-            <th>Status</th>
-            <th>Completed</th>
-            <th>Partial</th>
-            <th>Not Done</th>
-          </tr>
-        </thead>
-        <tbody>
-          {summary.members.map((m) => (
-            <tr key={m.userId}>
-              <td>{m.userId}</td>
-              <td>{m.status}</td>
-              <td>{m.completedCount}</td>
-              <td>{m.partialCount}</td>
-              <td>{m.notDoneCount}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+        {/* Team table */}
+        <div>
+          <h3 className="text-sm font-semibold text-slate-200 mb-3">Team Members</h3>
+          <div className="bg-white/[0.04] border border-white/[0.08] rounded-xl overflow-hidden">
+            <div className="grid grid-cols-[2fr_1fr_1fr_1fr_1fr] px-4 py-2.5 border-b border-white/[0.08] text-[10px] uppercase tracking-widest text-slate-500">
+              <div>Member</div><div>Status</div><div>Done</div><div>Partial</div><div>Not Done</div>
+            </div>
+            {summary.members.map(m => (
+              <div key={m.userId} className="grid grid-cols-[2fr_1fr_1fr_1fr_1fr] px-4 py-3 border-b border-white/[0.06] text-sm items-center last:border-b-0">
+                <div className="flex items-center gap-2">
+                  <div className="w-7 h-7 bg-gradient-to-br from-purple-600 to-indigo-500 rounded-full flex items-center justify-center text-[11px] font-semibold text-white">
+                    {m.userId.slice(0, 2).toUpperCase()}
+                  </div>
+                  <span className="text-slate-200">{m.userId}</span>
+                </div>
+                <div>
+                  <span className={`text-xs px-2 py-0.5 rounded ${
+                    m.status === 'RECONCILED' ? 'bg-green-900/20 text-green-400' :
+                    m.status === 'RECONCILING' ? 'bg-purple-900/20 text-purple-400' :
+                    m.status === 'LOCKED' ? 'bg-amber-900/20 text-amber-400' :
+                    'bg-white/[0.08] text-slate-400'
+                  }`}>
+                    {m.status}
+                  </span>
+                </div>
+                <div className="text-green-400 font-semibold">{m.completedCount}</div>
+                <div className="text-amber-400">{m.partialCount}</div>
+                <div className="text-red-400">{m.notDoneCount}</div>
+              </div>
+            ))}
+          </div>
+        </div>
 
-      <RcdoAlignmentChart alignment={alignment} />
+        <RcdoAlignmentChart alignment={alignment} />
+      </div>
     </div>
   );
 }
