@@ -39,7 +39,7 @@ A complete visual overhaul using Tailwind CSS with a dark & vibrant design langu
 | Quadrant | Accent | Tint Background | Badge Background |
 |----------|--------|-----------------|------------------|
 | Do First (U+I) | `#ef4444` | `#7f1d1d` at 20-30% | `#7f1d1d50` border `#ef444440` |
-| Schedule (I) | `#818cf8` | `#1e3a5f` at 20-30% | `#1e3a5f50` border `#3b82f640` |
+| Schedule (I) | `#818cf8` | `#1e1b4b` at 20-30% | `#1e1b4b50` border `#6366f140` |
 | Delegate (U) | `#f59e0b` | `#78350f` at 20-30% | `#78350f50` border `#f59e0b40` |
 | Eliminate | `#9ca3af` | `#374151` at 20-30% | `#37415150` border `#6b728040` |
 
@@ -79,11 +79,12 @@ Contained in a surface-colored pill (`bg-white/6 border border-white/10 rounded-
 
 ### View 1: Commit Entry (DRAFT)
 
-**Stats Bar** — Horizontal row below nav. Three stat blocks, each with:
-- 36×36 icon box with quadrant-tinted gradient background and border
-- Large number in accent color
-- Label + sublabel in secondary/muted text
-- Right-aligned "+ New Commit" button with primary gradient + glow shadow
+**Stats Bar** — Horizontal row below nav. Three stat blocks + action button:
+1. **Commits** — total commit count for the week (purple accent, `#a78bfa`)
+2. **Do First** — count of items in the urgent+important quadrant (red accent, `#f87171`)
+3. **Carried** — count of items carried forward from prior week, i.e. items with `carriedFromId` set (amber accent, `#fbbf24`)
+
+Each stat block: 36×36 icon box with quadrant-tinted gradient background and border, large number in accent color, label + sublabel in secondary/muted text. Right-aligned "+ New Commit" button with primary gradient + glow shadow.
 
 **Item List** — Vertical stack of item rows. Each row:
 - Surface background with gradient (`bg-white/6 → bg-white/3`)
@@ -102,7 +103,8 @@ Contained in a surface-colored pill (`bg-white/6 border border-white/10 rounded-
 - Slides in from right edge, 50% viewport width
 - Background: surface gradient with left border `border-white/15`
 - Shadow: `-8px 0 24px rgba(0,0,0,0.5)`
-- Main content dims to 30% opacity behind
+- Main content dims to 30% opacity behind via a backdrop overlay div
+- **Implementation:** Rendered inline as a sibling to the main content, NOT via a React portal. The slide-over is a fixed-position overlay within the `CommitEntryView` component tree. This avoids portal complications in the module federation context. The backdrop is a full-screen fixed div with `bg-black/70` that sits behind the panel.
 - Form fields: title input, description textarea, RCDO cascade selector (3 dropdowns in flex row), urgency toggle (two buttons: "Urgent" / "Not"), importance toggle (same pattern), Add Commit button (primary gradient), Cancel button (outline)
 - Active toggle buttons use quadrant tint backgrounds; inactive use surface
 - After submit: form clears, stays open for next entry
@@ -158,10 +160,10 @@ Same nav bar with "/ Manager" breadcrumb. No status badge.
 
 ### Tailwind Setup
 
-Install Tailwind CSS v3 with PostCSS and autoprefixer. Configure `tailwind.config.js` with:
-- `darkMode: 'class'` (though we're always dark)
-- Extended colors for the custom palette (quadrant colors, status colors, brand colors)
-- Custom background gradients via Tailwind's `backgroundImage` extension
+Install Tailwind CSS v4 (current release) with the Vite plugin (`@tailwindcss/vite`). Tailwind v4 uses CSS-first configuration — no `tailwind.config.js` or `postcss.config.js` needed. Custom theme values (colors, gradients) are defined via `@theme` in the CSS file.
+
+- Import `web/src/index.css` in `web/src/main.tsx`
+- `index.css` contains: `@import "tailwindcss"`, `@theme` block with custom colors, and global styles (background gradient, scrollbar styling)
 - Font: system-ui stack (no custom fonts)
 
 ### File Changes
@@ -169,15 +171,15 @@ Install Tailwind CSS v3 with PostCSS and autoprefixer. Configure `tailwind.confi
 All changes are in `web/` — no backend modifications.
 
 **New files:**
-- `web/tailwind.config.js` — Tailwind configuration with custom theme
-- `web/postcss.config.js` — PostCSS with Tailwind and autoprefixer
-- `web/src/index.css` — Tailwind directives + global styles (background gradient, scrollbar styling)
-- `web/src/components/SlideOver.tsx` — Reusable slide-over panel component
+- `web/src/index.css` — Tailwind import, `@theme` with custom colors, global styles (background gradient, scrollbar)
+- `web/src/components/SlideOver.tsx` — Reusable slide-over panel component (fixed-position, no portal)
 - `web/src/components/StatusBadge.tsx` — Reusable status badge component
 - `web/src/components/StatCard.tsx` — Reusable stat card component
 - `web/src/components/NavBar.tsx` — Shared navigation bar
 
 **Modified files (replace inline styles with Tailwind classes):**
+- `web/src/main.tsx` — add `import './index.css'`
+- `web/src/WeeklyCommitsApp.tsx` — wrap routes in NavBar layout, pass status/breadcrumb props
 - `web/src/components/CommitEntryView.tsx`
 - `web/src/components/CommitItemForm.tsx`
 - `web/src/components/RcdoCascadeSelector.tsx`
@@ -192,11 +194,16 @@ All changes are in `web/` — no backend modifications.
 
 ### Testing
 
-Existing tests should continue to pass — we're changing visual presentation only, not behavior or DOM structure. Tests that check for specific text content, aria-labels, or user interactions remain valid. Add Tailwind's test configuration to ensure classes are included during test runs.
+Most existing tests query by text content, aria-labels, and user interactions — these remain valid since we're changing visual presentation, not behavior. However:
+
+- **DOM restructuring risks:** Moving the week selector into a shared `NavBar` and wrapping the form in a `SlideOver` changes the component tree. Tests for `CommitEntryView` and `LockedView` that render the component and query for week selector elements may need the `NavBar` to be rendered as part of the tree, or the week selector to be passed as a prop. Review each test file after restyling and update selectors if needed.
+- **Slide-over visibility:** Tests that check for form fields in `CommitEntryView` need to account for the slide-over being conditionally rendered (triggered by the "+ New Commit" button click).
+- **New components:** `NavBar`, `SlideOver`, `StatusBadge`, and `StatCard` do not need dedicated test files — they are presentational wrappers tested through the view-level tests that render them.
+- **Tailwind in tests:** Tailwind v4 with Vite generates CSS at build time. In vitest/jsdom tests, CSS classes are present in the DOM but not visually rendered — this is fine. No special Tailwind test configuration is needed.
 
 ## What This Does NOT Change
 
 - No backend changes — Java service, API, database unchanged
 - No new routes or state management — Zustand stores unchanged
 - No new functionality — same views, same lifecycle, same data
-- No new dependencies besides Tailwind CSS + PostCSS + autoprefixer
+- No new dependencies besides Tailwind CSS v4 (`tailwindcss`, `@tailwindcss/vite`)
