@@ -24,7 +24,7 @@ export function CommitEntryView() {
   const [showForm, setShowForm] = useState(false);
   const [viewMode, setViewMode] = useState<'list' | 'matrix'>('list');
 
-  useEffect(() => { fetchCurrentWeek(); }, [fetchCurrentWeek]);
+  useEffect(() => { fetchCurrentWeek(); }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (loading) return <div className="flex items-center justify-center h-screen text-slate-400">Loading...</div>;
   if (error) return <div role="alert" className="flex items-center justify-center h-screen text-red-400">Error: {error}</div>;
