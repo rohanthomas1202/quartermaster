@@ -1,0 +1,71 @@
+/* web/src/index.css */
+@import "tailwindcss";
+
+@theme {
+  /* Base palette */
+  --color-surface: rgba(255, 255, 255, 0.04);
+  --color-surface-hover: rgba(255, 255, 255, 0.08);
+  --color-border: rgba(255, 255, 255, 0.08);
+  --color-border-strong: rgba(255, 255, 255, 0.15);
+
+  /* Quadrant accents */
+  --color-q-dofirst: #ef4444;
+  --color-q-schedule: #818cf8;
+  --color-q-delegate: #f59e0b;
+  --color-q-eliminate: #9ca3af;
+
+  /* Quadrant tints */
+  --color-q-dofirst-tint: rgba(127, 29, 29, 0.3);
+  --color-q-schedule-tint: rgba(30, 27, 75, 0.3);
+  --color-q-delegate-tint: rgba(120, 53, 15, 0.3);
+  --color-q-eliminate-tint: rgba(55, 65, 81, 0.3);
+
+  /* Status */
+  --color-status-completed: #22c55e;
+  --color-status-partial: #f59e0b;
+  --color-status-notdone: #ef4444;
+  --color-status-pending: #64748b;
+
+  /* Brand */
+  --color-brand-primary: #7c3aed;
+  --color-brand-primary-light: #a78bfa;
+}
+
+/* Global styles */
+body {
+  background: linear-gradient(135deg, #0f0f1a 0%, #1a1a2e 50%, #16213e 100%);
+  min-height: 100vh;
+  color: #f1f5f9;
+  font-family: system-ui, -apple-system, sans-serif;
+}
+
+/* Dark scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+}
+
+/* Dark form elements */
+input, textarea, select {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 0.5rem;
+  color: #f1f5f9;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  outline: none;
+  transition: border-color 0.15s;
+}
+input:focus, textarea:focus, select:focus {
+  border-color: #7c3aed;
+}
+select option {
+  background: #1e293b;
+  color: #f1f5f9;
+}
