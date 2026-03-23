@@ -46,8 +46,9 @@ export function RcdoCascadeSelector({ onSelect, initialOutcomeId }: RcdoCascadeS
   const currentOutcomes = selectedObjId ? outcomes[selectedObjId] ?? [] : [];
 
   return (
-    <div style={{ display: 'flex', gap: '8px' }}>
+    <div className="flex gap-2">
       <select
+        className="flex-1"
         aria-label="Rally Cry"
         value={selectedRcId}
         onChange={(e) => handleRcChange(e.target.value)}
@@ -61,6 +62,7 @@ export function RcdoCascadeSelector({ onSelect, initialOutcomeId }: RcdoCascadeS
       </select>
 
       <select
+        className="flex-1 disabled:opacity-40"
         aria-label="Defining Objective"
         value={selectedObjId}
         onChange={(e) => handleObjChange(e.target.value)}
@@ -75,6 +77,7 @@ export function RcdoCascadeSelector({ onSelect, initialOutcomeId }: RcdoCascadeS
       </select>
 
       <select
+        className="flex-1 disabled:opacity-40"
         aria-label="Outcome"
         value={selectedOutcomeId}
         onChange={(e) => handleOutcomeChange(e.target.value)}
