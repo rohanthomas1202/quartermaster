@@ -1,8 +1,8 @@
 spring:
   datasource:
     url: jdbc:postgresql://localhost:5432/weekly_commits
-    username: ${DB_USERNAME:postgres}
-    password: ${DB_PASSWORD:postgres}
+    username: ${DB_USERNAME:rohanthomas}
+    password: ${DB_PASSWORD:}
   jpa:
     hibernate:
       ddl-auto: validate

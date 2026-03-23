@@ -28,12 +28,14 @@ public class WeeklyCommitService {
         this.orgSettingsRepository = orgSettingsRepository;
     }
 
+    @Transactional
     public WeeklyCommit getCurrentWeek(String userId, String orgId) {
         LocalDate today = resolveToday(orgId);
         LocalDate monday = today.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
         return getOrCreateWeek(userId, orgId, monday);
     }
 
+    @Transactional
     public WeeklyCommit getWeek(String userId, String orgId, LocalDate weekStart) {
         return getOrCreateWeek(userId, orgId, weekStart);
     }

@@ -1,0 +1,11 @@
+spring:
+  datasource:
+    username: ${DB_USERNAME:rohanthomas}
+    password: ${DB_PASSWORD:}
+
+# Default auth headers for local development (no Ship proxy)
+app:
+  auth:
+    default-user-id: user-1
+    default-org-id: org-1
+    default-user-role: manager

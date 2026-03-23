@@ -30,6 +30,13 @@ export default defineConfig({
   server: {
     port: 3001,
     cors: true,
+    proxy: {
+      '/api/wc': {
+        target: 'http://localhost:8080',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api\/wc/, '/api/v1'),
+      },
+    },
   },
   test: {
     globals: true,
